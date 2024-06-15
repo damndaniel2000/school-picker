@@ -1,33 +1,37 @@
-import { useState } from "react"
-import Pill from "./components/Pill"
-
-const CATEGORIES = [
-  "Schools",
-  "Kindertageseinrichtungen",
-  "Schulsozialarbeit",
-  "Jugendberufshilfe"
-]
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import { Theme } from "@radix-ui/themes";
+import SignUp from "./pages/SignUp";
+import { useEffect } from "react";
+import Axios from "axios";
 
 export default function App() {
-
-  const [categories, setCategories] = useState<string[]>([])
-
+  useEffect(() => {
+    Axios.get("https://db-webtech-project.onrender.com/kg-facilities/")
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
   return (
-    <>
-      <nav className="w-full bg-blue-500 flex justify-center items-center px-8 py-4">
-        <h1>Sexiest Project Ever</h1>
-      </nav>
-      <div>
-        <div className="flex justify-center items-center space-x-6 py-5">
-          {CATEGORIES.map(item =>
-            <Pill text={item} onClick={(item) => setCategories(prev => [...prev, item])} />
-          )}
-        </div>
-
-        <div className="h-[calc(100vh-128px)] bg-blue-200">
-          Map will come here
-        </div>
-      </div>
-    </>
-  )
+    <Router>
+      <Theme>
+        <Routes>
+          <Route
+            path="/home"
+            element={<Dashboard />}
+          />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
+          <Route
+            path="/signup"
+            element={<SignUp />}
+          />
+        </Routes>
+      </Theme>
+    </Router>
+  );
 }
