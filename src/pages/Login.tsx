@@ -1,11 +1,23 @@
 import { Button, TextField } from "@radix-ui/themes";
 import { Link, useNavigate } from "react-router-dom";
+import { login } from "../utils/api";
+import { useState } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
 
-  const onLogin = () => {
-    navigate("/home");
+  const [userName, setUserName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
+  const onLogin = async () => {
+    try {
+      const loginData = await login({ username: userName, password });
+      const token = loginData.data.access_token;
+      localStorage.setItem("token", token);
+      navigate("/home");
+    } catch (e) {
+      console.log(e);
+    }
   };
   return (
     <div className="w-[400px] flex items-center relative justify-center flex-col h-screen mx-auto p-6 text-center">
@@ -13,13 +25,21 @@ const Login = () => {
       <div className="space-y-8 w-full">
         <div className="space-y-4">
           <TextField.Root
+            value={userName}
             size="3"
             placeholder="Username"
+            onChange={(e) => {
+              setUserName(e.target.value);
+            }}
           />
           <TextField.Root
+            value={password}
             type="password"
             size="3"
             placeholder="Password"
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
           />
         </div>
         <Button
