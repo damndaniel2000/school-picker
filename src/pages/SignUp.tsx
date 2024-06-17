@@ -1,24 +1,36 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, TextField } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
 import * as Form from "@radix-ui/react-form";
 import { signup } from "../utils/api";
 
-const SignUp = () => {
-  const [errors, setErrors] = useState({
+// Define the types for the errors state
+interface Errors {
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+  repeatPassword: string;
+}
+
+const SignUp: React.FC = () => {
+  const navigate = useNavigate();
+  const [errors, setErrors] = useState<Errors>({
     firstName: "",
     lastName: "",
     username: "",
     password: "",
     repeatPassword: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  const validateEmail = (email: string) => {
+  const validateEmail = (email: string): boolean => {
     const re = /\S+@\S+\.\S+/;
     return re.test(email);
   };
 
-  const validatePassword = (password: string) => {
+  const validatePassword = (password: string): boolean => {
     return password.length >= 6;
   };
 
@@ -61,7 +73,7 @@ const SignUp = () => {
     const repeatPassword = formData.get("repeatPassword") as string;
 
     let valid = true;
-    const errors = {
+    const errors: Errors = {
       firstName: "",
       lastName: "",
       username: "",
@@ -97,18 +109,27 @@ const SignUp = () => {
     setErrors(errors);
 
     if (valid) {
-      const data = {
-        username,
-        email: username,
-        full_name: `${firstName} ${lastName}`,
-        password,
-      };
+      setLoading(true);
+      try {
+        const data = {
+          username,
+          email: username,
+          full_name: `${firstName} ${lastName}`,
+          password,
+        };
 
-      const payload = await signup(data);
+        const payload = await signup(data);
 
-      console.log(payload);
+        // Save the token in localStorage
+        localStorage.setItem("token", payload.data.access_token);
 
-      // navigate("/home");
+        // Navigate to home page
+        navigate("/home");
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -195,6 +216,7 @@ const SignUp = () => {
           className="w-full"
           variant="solid"
           type="submit"
+          loading={loading}
         >
           Create
         </Button>

@@ -35,8 +35,7 @@ export const login = (payload: Login) => {
 };
 
 export const signup = (payload: SignUp) => {
-  const data = convertToURLSearchParams(payload);
-  return api.post("/signup", data);
+  return api.post("/signup", payload);
 };
 
 export const getKgFacilities = () => {
@@ -55,9 +54,20 @@ export const getSocialTeenageProjectFacilities = () => {
   return api.get("/social-teenage-project-facilities");
 };
 
+export const getUserDetails = () => {
+  return api.get("/users/me");
+};
+
+export const deleteUser = () => {
+  return api.delete("/users/me");
+};
+
+export const getUserFavorite = () => {
+  return api.get("/users/me/favorite");
+};
+
 export const saveFavorite = (facility_id: string) => {
-  const data = convertToURLSearchParams({ facility_id });
-  return api.post("/users/me/favorite", data);
+  return api.post("/users/me/favorite", { facility_id });
 };
 
 // Export the Axios instance
