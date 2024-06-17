@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import { Theme } from "@radix-ui/themes";
@@ -22,6 +27,15 @@ export default function App() {
             <Route
               path="/signup"
               element={<SignUp />}
+            />
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to="/login"
+                  replace
+                />
+              }
             />
           </Routes>
         </APIProvider>
