@@ -4,6 +4,7 @@ import { Button, TextField } from "@radix-ui/themes";
 import { Link } from "react-router-dom";
 import * as Form from "@radix-ui/react-form";
 import { signup } from "../utils/api";
+import { toast } from "react-toastify";
 
 // Define the types for the errors state
 interface Errors {
@@ -125,8 +126,9 @@ const SignUp: React.FC = () => {
 
         // Navigate to home page
         navigate("/home");
-      } catch (e) {
-        console.log(e);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (e: any) {
+        toast.error(e?.response?.data?.detail);
       } finally {
         setLoading(false);
       }

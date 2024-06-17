@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "../utils/api";
 import { useState } from "react";
 import * as Form from "@radix-ui/react-form";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,14 +15,16 @@ const Login = () => {
 
   const onLogin = async (event: React.FormEvent) => {
     event.preventDefault();
+
     setLoading(true);
     try {
       const loginData = await login({ username: userName, password });
       const token = loginData.data.access_token;
       localStorage.setItem("token", token);
       navigate("/home");
-    } catch (e) {
-      console.log(e);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      toast.error(e?.response?.data?.detail);
     } finally {
       setLoading(false);
     }

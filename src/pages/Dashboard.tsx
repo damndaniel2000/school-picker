@@ -103,7 +103,6 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    console.log("HERE MOUNT");
     fetchData();
   }, []);
 

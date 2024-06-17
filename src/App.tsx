@@ -9,6 +9,8 @@ import Dashboard from "./pages/Dashboard";
 import { Theme } from "@radix-ui/themes";
 import SignUp from "./pages/SignUp";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   return (
@@ -38,6 +40,15 @@ export default function App() {
               }
             />
           </Routes>
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            hideProgressBar
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            theme="colored"
+          />
         </APIProvider>
       </Theme>
     </Router>
