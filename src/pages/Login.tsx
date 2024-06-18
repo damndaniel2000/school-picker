@@ -20,7 +20,7 @@ const Login = () => {
     try {
       const loginData = await login({ username: userName, password });
       const token = loginData.data.access_token;
-      localStorage.setItem("token", token);
+      await localStorage.setItem("token", token);
       navigate("/home");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {

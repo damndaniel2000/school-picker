@@ -12,6 +12,8 @@ import { Institute } from "../utils/types";
 import ProfileDropdown from "../components/ProfileDropdown";
 import logo from "../assets/logo.png";
 import SideDrawer from "../components/SideDrawer";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const CATEGORIES = [
   "Kindertageseinrichtungen",
@@ -35,12 +37,43 @@ const getButtonColor = (category: string) => {
   }
 };
 
+const checkTokenValidity = () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      const decodedToken = jwtDecode(token);
+      const currentTime = Date.now() / 1000; // current time in seconds
+      if (decodedToken.exp && decodedToken.exp > currentTime) {
+        return true;
+      } else {
+        console.log("Token has expired");
+        localStorage.clear();
+        return false;
+      }
+    } catch (error) {
+      console.log("Invalid token");
+      return false;
+    }
+  }
+  console.log("No token found");
+  return false;
+};
+
 export default function Dashboard() {
   const [categories, setCategories] = useState<string[]>([CATEGORIES[0]]);
   const [markers, setMarkers] = useState<Institute[]>([]);
   const [isLoading, setIsLoading] = useState(true); // State to manage loading state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCategoriesDisabled, setIsCategoriesDisabled] = useState(true);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!checkTokenValidity()) {
+      localStorage.clear();
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const fetchData = async () => {
     try {

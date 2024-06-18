@@ -93,7 +93,7 @@ const MarkerComponent = (props: Institute) => {
                 <Button
                   className="cursor-pointer"
                   variant="solid"
-                  onClick={() => handleFavClick(props.ID.toString())}
+                  onClick={() => handleFavClick(props.id.toString())}
                 >
                   Set As Favorite
                 </Button>

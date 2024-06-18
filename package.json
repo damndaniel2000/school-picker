@@ -12,6 +12,7 @@
   "dependencies": {
     "@radix-ui/themes": "^3.0.5",
     "@vis.gl/react-google-maps": "^1.0.2",
+    "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.1",

@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { deleteUser, getUserDetails } from "../utils/api";
-import { Button } from "@radix-ui/themes";
-import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import { deleteUser, getUserDetails, updateUserDetails } from "../utils/api";
+import { Button, Dialog, Flex, Text, TextField } from "@radix-ui/themes";
 import { useNavigate } from "react-router-dom";
+import DeleteConfirmAlert from "./DeleteConfirmAlert";
+import { EditDetails } from "../utils/types";
+import { toast } from "react-toastify";
 
 interface UserDetails {
-  username: string;
-  email: string;
-  full_name: string;
-  password: string;
+  username?: string;
+  email?: string;
+  full_name?: string;
   address?: string;
 }
 
@@ -19,7 +20,11 @@ interface SideDrawerProps {
 
 const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
   const [userDetails, setUserDetails] = useState<UserDetails>();
+  const [editedDetails, setEditedDetails] = useState<EditDetails>();
   const drawerRef = useRef<HTMLDivElement>(null);
+
+  const [isUpdateUsersOpen, setIsUpdateUsersOpen] = useState(false);
+  const [userUpdateLoading, setUserUpdateLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,6 +32,7 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
     try {
       const res = await getUserDetails();
       setUserDetails(res.data);
+      setEditedDetails(res.data);
     } catch (e) {
       console.log(e);
     }
@@ -39,6 +45,33 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
       navigate("/login");
     } catch (e) {
       console.log(e);
+    }
+  };
+
+  const updateDetailsAction = async () => {
+    if (!editedDetails) return;
+    setUserUpdateLoading(true);
+    try {
+      await updateUserDetails({
+        ...editedDetails,
+        username: userDetails?.username,
+        email: userDetails?.email,
+        favourite_facility: "",
+        house_number: "",
+        plz: "",
+        ort: "",
+      });
+      toast.success("User Details Updated");
+      setUserDetails({
+        ...userDetails,
+        address: editedDetails.address,
+        full_name: editedDetails.full_name,
+      });
+      setIsUpdateUsersOpen(false);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setUserUpdateLoading(false);
     }
   };
 
@@ -106,39 +139,119 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
         <div className="absolute space-x-4 bottom-4 left-4">
-          <Button>Update Details</Button>
-          <AlertDialog.Root>
-            <AlertDialog.Trigger asChild>
-              <Button color="red">Delete account</Button>
-            </AlertDialog.Trigger>
-            <AlertDialog.Portal>
-              <AlertDialog.Overlay className="bg-blackA6 data-[state=open]:animate-overlayShow fixed inset-0" />
-              <AlertDialog.Content className="data-[state=open]:animate-contentShow fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[500px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
-                <AlertDialog.Title className="text-mauve12 m-0 text-[17px] font-medium">
-                  Are you absolutely sure?
-                </AlertDialog.Title>
-                <AlertDialog.Description className="text-mauve11 mt-4 mb-5 text-[15px] leading-normal">
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from our servers.
-                </AlertDialog.Description>
-                <div className="flex justify-end gap-[25px]">
-                  <AlertDialog.Cancel asChild>
-                    <button className="text-mauve11 bg-mauve4 hover:bg-mauve5 focus:shadow-mauve7 inline-flex h-[35px] items-center justify-center rounded-[4px] px-[15px] font-medium leading-none outline-none focus:shadow-[0_0_0_2px]">
-                      Cancel
-                    </button>
-                  </AlertDialog.Cancel>
-                  <AlertDialog.Action asChild>
-                    <button
-                      onClick={deleteAction}
-                      className="text-white bg-red-500 hover:bg-red-600  inline-flex h-[35px] items-center justify-center rounded-[4px] px-[15px] font-medium leading-none outline-none focus:shadow-[0_0_0_2px]"
-                    >
-                      Yes, delete account
-                    </button>
-                  </AlertDialog.Action>
-                </div>
-              </AlertDialog.Content>
-            </AlertDialog.Portal>
-          </AlertDialog.Root>
+          <Dialog.Root open={isUpdateUsersOpen}>
+            <Dialog.Trigger onClick={() => setIsUpdateUsersOpen(true)}>
+              <Button>Update Details</Button>
+            </Dialog.Trigger>
+
+            <Dialog.Content maxWidth="450px">
+              <Dialog.Title>Edit profile</Dialog.Title>
+              <Dialog.Description
+                size="2"
+                mb="4"
+              >
+                Make changes to your profile.
+              </Dialog.Description>
+
+              <Flex
+                direction="column"
+                gap="3"
+              >
+                <label>
+                  <Text
+                    as="div"
+                    size="2"
+                    mb="1"
+                    weight="bold"
+                  >
+                    Name
+                  </Text>
+                  <TextField.Root
+                    value={editedDetails?.full_name}
+                    placeholder="Enter your full name"
+                    onChange={(e) =>
+                      setEditedDetails({
+                        ...editedDetails,
+                        full_name: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  <Text
+                    as="div"
+                    size="2"
+                    mb="1"
+                    weight="bold"
+                  >
+                    Password
+                  </Text>
+                  <TextField.Root
+                    type="password"
+                    placeholder="Set New Password"
+                    onChange={(e) =>
+                      setEditedDetails({
+                        ...editedDetails,
+                        password: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  <Text
+                    as="div"
+                    size="2"
+                    mb="1"
+                    weight="bold"
+                  >
+                    Address
+                  </Text>
+                  <TextField.Root
+                    value={editedDetails?.address || ""}
+                    placeholder="Address"
+                    onChange={(e) =>
+                      setEditedDetails({
+                        ...editedDetails,
+                        address: e.target.value,
+                      })
+                    }
+                  />
+                  {/* <AutocompleteComponent
+                    value={editedDetails?.address || ""}
+                    onPlaceSelect={(e) => {
+                      setEditedDetails({
+                        ...editedDetails,
+                        address: e?.formatted_address,
+                      });
+                    }}
+                  /> */}
+                </label>
+              </Flex>
+
+              <Flex
+                gap="3"
+                mt="4"
+                justify="end"
+              >
+                <Dialog.Close onClick={() => setIsUpdateUsersOpen(false)}>
+                  <Button
+                    variant="soft"
+                    color="gray"
+                  >
+                    Cancel
+                  </Button>
+                </Dialog.Close>
+                <Button
+                  loading={userUpdateLoading}
+                  onClick={updateDetailsAction}
+                >
+                  Save
+                </Button>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
+
+          <DeleteConfirmAlert deleteAction={deleteAction} />
         </div>
       </div>
     </>

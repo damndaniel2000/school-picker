@@ -32,3 +32,15 @@ export type Institute = {
   INTEGRATIV: number;
   category: string;
 };
+
+export type EditDetails = {
+  full_name?: string;
+  address?: string;
+  password?: string;
+  username?: string;
+  email?: string;
+  favourite_facility?: string;
+  house_number?: string;
+  plz?: string;
+  ort?: string;
+};
