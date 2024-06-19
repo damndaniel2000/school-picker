@@ -163,7 +163,7 @@ const SignUp: React.FC = () => {
   );
 
   return (
-    <div className="w-[400px] flex items-center relative justify-center flex-col h-screen mx-auto p-6 text-center">
+    <div className=" md:w-[400px] flex items-center relative justify-center flex-col h-[90vh] md:h-screen mx-auto p-6 text-center">
       <h2 className="text-2xl font-semibold mb-6">Create An Account</h2>
       <Form.Root
         className="space-y-3 w-full"

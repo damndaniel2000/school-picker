@@ -32,7 +32,7 @@ const Login = () => {
   };
 
   return (
-    <div className="w-[400px] flex items-center relative justify-center flex-col h-screen mx-auto p-6 text-center">
+    <div className="md:w-[400px] flex items-center relative justify-center flex-col h-[90vh] md:h-screen mx-auto p-6 text-center">
       <h2 className="text-2xl font-semibold mb-6">Login</h2>
       <Form.Root
         onSubmit={onLogin}

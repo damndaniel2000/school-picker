@@ -33,7 +33,7 @@ export type Institute = {
   category: string;
 };
 
-export type EditDetails = {
+export type UserDetails = {
   full_name?: string;
   address?: string;
   password?: string;

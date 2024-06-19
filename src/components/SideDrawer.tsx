@@ -3,16 +3,9 @@ import { deleteUser, getUserDetails, updateUserDetails } from "../utils/api";
 import { Button, Flex, Text, TextField } from "@radix-ui/themes";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmAlert from "./DeleteConfirmAlert";
-import { EditDetails } from "../utils/types";
+import { UserDetails } from "../utils/types";
 import { toast } from "react-toastify";
 import PlaceAutocompleteClassic from "./Autocomplete";
-
-interface UserDetails {
-  username?: string;
-  email?: string;
-  full_name?: string;
-  address?: string;
-}
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -21,7 +14,7 @@ interface SideDrawerProps {
 
 const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
   const [userDetails, setUserDetails] = useState<UserDetails>();
-  const [editedDetails, setEditedDetails] = useState<EditDetails>();
+  const [editedDetails, setEditedDetails] = useState<UserDetails>();
   const drawerRef = useRef<HTMLDivElement>(null);
 
   const [isUpdateUsersOpen, setIsUpdateUsersOpen] = useState(false);
@@ -58,9 +51,6 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
         username: userDetails?.username,
         email: userDetails?.email,
         favourite_facility: "",
-        house_number: "",
-        plz: "",
-        ort: "",
       });
       toast.success("User Details Updated");
       setUserDetails({
@@ -89,21 +79,10 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
       }
     };
 
-    // const handleClickOutside = (event: MouseEvent) => {
-    //   if (
-    //     drawerRef.current &&
-    //     !drawerRef.current.contains(event.target as Node)
-    //   ) {
-    //     onClose();
-    //   }
-    // };
-
     document.addEventListener("keydown", handleEscape);
-    // document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      // document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [onClose]);
 
@@ -118,16 +97,16 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
         ref={drawerRef}
         className={`fixed top-0 h-full right-0 z-50 transition-transform transform pt-12 ${
           isOpen ? "translate-x-0" : "translate-x-full"
-        } bg-white shadow-lg p-4 w-full md:w-1/4`}
+        } bg-white shadow-lg p-4 w-full md:w-[450px]`}
       >
+        <button
+          onClick={onClose}
+          className="absolute text-2xl top-4 right-4 text-gray-500 hover:text-gray-700"
+        >
+          &times;
+        </button>
         {!isUpdateUsersOpen ? (
           <>
-            <button
-              onClick={onClose}
-              className="absolute text-2xl top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
-              &times;
-            </button>
             <h2 className="text-xl font-semibold mb-4">User Details</h2>
             <div className="space-y-4">
               <div>
@@ -156,6 +135,20 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
                   </div>
                 </div>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  House Number
+                </label>
+                <div className="mt-1 block w-full">
+                  {userDetails?.house_number}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Zip Code
+                </label>
+                <div className="mt-1 block w-full">{userDetails?.plz}</div>
+              </div>
             </div>
             <div className="absolute space-x-4 bottom-4 left-4">
               <Button onClick={() => setIsUpdateUsersOpen(true)}>
@@ -181,52 +174,13 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
                   Name
                 </Text>
                 <TextField.Root
+                  size="3"
                   value={editedDetails?.full_name}
                   placeholder="Enter your full name"
                   onChange={(e) =>
                     setEditedDetails({
                       ...editedDetails,
                       full_name: e.target.value,
-                    })
-                  }
-                />
-              </label>
-              <label>
-                <Text
-                  as="div"
-                  size="2"
-                  mb="1"
-                  weight="bold"
-                >
-                  Password
-                </Text>
-                <TextField.Root
-                  type="password"
-                  placeholder="Set New Password"
-                  onChange={(e) =>
-                    setEditedDetails({
-                      ...editedDetails,
-                      password: e.target.value,
-                    })
-                  }
-                />
-              </label>
-              <label>
-                <Text
-                  as="div"
-                  size="2"
-                  mb="1"
-                  weight="bold"
-                >
-                  Password
-                </Text>
-                <TextField.Root
-                  type="password"
-                  placeholder="Set New Password"
-                  onChange={(e) =>
-                    setEditedDetails({
-                      ...editedDetails,
-                      password: e.target.value,
                     })
                   }
                 />
@@ -250,6 +204,72 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
                       address: e?.formatted_address,
                     });
                   }}
+                />
+              </label>
+              <div className="flex space-x-4">
+                <label>
+                  <Text
+                    as="div"
+                    size="2"
+                    mb="1"
+                    weight="bold"
+                  >
+                    House Number
+                  </Text>
+                  <TextField.Root
+                    size="3"
+                    placeholder="House Number"
+                    value={editedDetails?.house_number}
+                    onChange={(e) =>
+                      setEditedDetails({
+                        ...editedDetails,
+                        house_number: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+                <label>
+                  <Text
+                    as="div"
+                    size="2"
+                    mb="1"
+                    weight="bold"
+                  >
+                    Zip Code
+                  </Text>
+
+                  <TextField.Root
+                    size="3"
+                    placeholder="Set Zip Code"
+                    value={editedDetails?.plz}
+                    onChange={(e) =>
+                      setEditedDetails({
+                        ...editedDetails,
+                        plz: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+              </div>
+              <label>
+                <Text
+                  as="div"
+                  size="2"
+                  mb="1"
+                  weight="bold"
+                >
+                  Password
+                </Text>
+                <TextField.Root
+                  size="3"
+                  type="password"
+                  placeholder="Set New Password"
+                  onChange={(e) =>
+                    setEditedDetails({
+                      ...editedDetails,
+                      password: e.target.value,
+                    })
+                  }
                 />
               </label>
             </Flex>

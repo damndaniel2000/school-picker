@@ -177,10 +177,10 @@ export default function Dashboard() {
 
   return (
     <>
-      <nav className="w-full bg-blue-500 flex justify-between items-center px-8 py-2">
+      <nav className="w-full bg-blue-500 flex justify-between items-center px-5 md:px-8 py-2">
         <div className="flex items-center space-x-2">
           <img
-            className="w-16 h-10"
+            className="w-12 h-8 md:w-16 md:h-10"
             src={logo}
             alt="Logo"
           />
@@ -188,7 +188,7 @@ export default function Dashboard() {
         <ProfileDropdown openProfileSection={() => setIsDrawerOpen(true)} />
       </nav>
       <div>
-        <div className="flex justify-center items-center space-x-6 py-5">
+        <div className="grid grid-cols-2 gap-2 px-1 md:flex md:justify-center md:items-center md:space-x-6 py-5">
           {CATEGORIES.map((item) => (
             <Button
               key={item}
@@ -208,11 +208,11 @@ export default function Dashboard() {
         />
 
         {isLoading ? ( // Conditional rendering based on loading state
-          <div className="flex justify-center items-center h-[calc(100vh-128px)]">
+          <div className="flex justify-center items-center  h-[calc(100vh-168px)] md:h-[calc(100vh-128px)]">
             <p>Loading...</p> {/* Placeholder for loader */}
           </div>
         ) : (
-          <div className="h-[calc(100vh-128px)] ">
+          <div className="h-[calc(100vh-168px)] md:h-[calc(100vh-128px)]">
             {filteredMarkers.length > 0 && (
               <MapComponent
                 favoriteId={favoriteFacility?.id}

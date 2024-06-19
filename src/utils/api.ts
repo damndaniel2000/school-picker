@@ -1,5 +1,5 @@
 import axios from "axios";
-import { EditDetails, Login, SignUp } from "./types";
+import { UserDetails, Login, SignUp } from "./types";
 
 // Create an Axios instance with the base URL
 const api = axios.create({
@@ -74,7 +74,7 @@ export const updateUserFavorite = (facility_id: string) => {
   return api.patch("/users/me/favourite?&facility_id=" + facility_id, {});
 };
 
-export const updateUserDetails = (payload: EditDetails) => {
+export const updateUserDetails = (payload: UserDetails) => {
   return api.put("/users/me", payload);
 };
 
