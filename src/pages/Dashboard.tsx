@@ -7,6 +7,7 @@ import {
   getKgFacilities,
   getSocialChildProjectFacilities,
   getSocialTeenageProjectFacilities,
+  getUserFavorite,
 } from "../utils/api";
 import { Institute } from "../utils/types";
 import ProfileDropdown from "../components/ProfileDropdown";
@@ -25,7 +26,7 @@ const CATEGORIES = [
 const getButtonColor = (category: string) => {
   switch (category) {
     case CATEGORIES[0]:
-      return "grass";
+      return "teal";
     case CATEGORIES[1]:
       return "orange";
     case CATEGORIES[2]:
@@ -65,6 +66,8 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true); // State to manage loading state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCategoriesDisabled, setIsCategoriesDisabled] = useState(true);
+  const [favoriteFacility, setFavoriteFacility] = useState<Institute>();
+  const [refreshFav, setRefreshFav] = useState("");
 
   const navigate = useNavigate();
 
@@ -135,9 +138,22 @@ export default function Dashboard() {
     }
   };
 
+  const fetchFavorite = async () => {
+    try {
+      const res = await getUserFavorite();
+      setFavoriteFacility(res.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchFavorite();
+  }, [refreshFav]);
 
   useEffect(() => {
     if (categories.length === 0) {
@@ -198,7 +214,11 @@ export default function Dashboard() {
         ) : (
           <div className="h-[calc(100vh-128px)] ">
             {filteredMarkers.length > 0 && (
-              <MapComponent markers={filteredMarkers} />
+              <MapComponent
+                favoriteId={favoriteFacility?.id}
+                markers={filteredMarkers}
+                refreshFav={(e) => setRefreshFav(e)}
+              />
             )}
           </div>
         )}

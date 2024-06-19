@@ -10,11 +10,16 @@ import kgMarker from "../assets/kgMarker.png";
 import schoolMarker from "../assets/schoolMarker.png";
 import collegeProjectMarker from "../assets/collegeProjectMarker.png";
 import childProjectMarker from "../assets/childProjectMarker.png";
+import favMarker from "../assets/fav.png";
 import { Button } from "@radix-ui/themes";
-import { saveFavorite } from "../utils/api";
+import { saveUserFavorite, updateUserFavorite } from "../utils/api";
+import { toast } from "react-toastify";
+import mapStyle from "../utils/mapStyle";
 
 type MapProps = {
+  favoriteId?: string | null;
   markers: Institute[];
+  refreshFav: (id: string) => void;
 };
 
 // Define a color map for categories
@@ -25,19 +30,34 @@ const CATEGORY_COLORS: { [key: string]: string } = {
   Jugendberufshilfe: collegeProjectMarker,
 };
 
-const MarkerComponent = (props: Institute) => {
+type MarkerComponentProps = {
+  item: Institute;
+  favoriteId?: string | null;
+  refreshFav: (id: string) => void;
+};
+
+const MarkerComponent = (props: MarkerComponentProps) => {
   const [infowindowOpen, setInfowindowOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [markerRef, marker] = useAdvancedMarkerRef();
   const infowindowRef = useRef<HTMLDivElement>(null);
 
-  const mark = CATEGORY_COLORS[props.category];
+  const item = props.item;
+
+  const mark = CATEGORY_COLORS[item.category];
 
   const handleFavClick = async (id: string) => {
+    setLoading(true);
     try {
-      const res = await saveFavorite(id);
-      console.log("FAV SET", res);
+      props.favoriteId
+        ? await updateUserFavorite(id)
+        : await saveUserFavorite(id);
+      toast.success("Favorite updated");
+      props.refreshFav(id);
     } catch (e) {
       console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,12 +87,12 @@ const MarkerComponent = (props: Institute) => {
       <AdvancedMarker
         ref={markerRef}
         onClick={() => setInfowindowOpen(true)}
-        position={{ lat: props.Y, lng: props.X }}
+        position={{ lat: item.Y, lng: item.X }}
       >
         <img
-          src={mark}
-          width={32}
-          height={32}
+          src={props.favoriteId === item.id ? favMarker : mark}
+          width={44}
+          height={44}
         />
         {infowindowOpen && (
           <InfoWindow
@@ -84,20 +104,31 @@ const MarkerComponent = (props: Institute) => {
               ref={infowindowRef}
               className="w-full"
             >
-              <h2 className="text-lg font-semibold">{props.BEZEICHNUNG}</h2>
-              <p className="text-sm text-gray-600">{props.ORT}</p>
-              <p className="mt-2">{props.STRASSE}</p>
-              <p>{props.TELEFON}</p>
-              <p>{props.EMAIL}</p>
-              <div className="mt-4">
-                <Button
-                  className="cursor-pointer"
-                  variant="solid"
-                  onClick={() => handleFavClick(props.id.toString())}
-                >
-                  Set As Favorite
-                </Button>
-              </div>
+              <h2 className="text-lg font-semibold">{item.BEZEICHNUNG}</h2>
+              <p className="text-sm text-gray-600">{item.ORT}</p>
+              <p className="mt-2">{item.STRASSE}</p>
+              <p>{item.TELEFON}</p>
+              <p>{item.EMAIL}</p>
+              <p>{item.TRAEGER}</p>
+              <p>{item.KURZBEZEICHNUNG}</p>
+              {item.STRSCHL && <p>Street Code: {item.STRSCHL}</p>}
+              {item.PLZ && <p>Postal Code: {item.PLZ}</p>}
+              {item.HAUSBEZ && <p>House Number: {item.HAUSBEZ}</p>}
+              {item.BARRIEREFREI && <p>Barrier-Free: {item.BARRIEREFREI}</p>}
+              {item.INTEGRATIV && <p>Integrative: {item.INTEGRATIV}</p>}
+
+              {props.favoriteId !== item.id && (
+                <div className="mt-4">
+                  <Button
+                    loading={loading}
+                    className="cursor-pointer"
+                    variant="solid"
+                    onClick={() => handleFavClick(item.id.toString())}
+                  >
+                    Set As Favorite
+                  </Button>
+                </div>
+              )}
             </div>
           </InfoWindow>
         )}
@@ -106,7 +137,11 @@ const MarkerComponent = (props: Institute) => {
   );
 };
 
-const MapComponent: React.FC<MapProps> = ({ markers }) => {
+const MapComponent: React.FC<MapProps> = ({
+  markers,
+  favoriteId,
+  refreshFav,
+}) => {
   return (
     <Map
       style={{ width: "100%", height: "100%" }}
@@ -114,10 +149,15 @@ const MapComponent: React.FC<MapProps> = ({ markers }) => {
       defaultZoom={16}
       gestureHandling={"greedy"}
       disableDefaultUI={true}
-      mapId={"hello"}
+      mapId="map1"
+      styles={mapStyle}
     >
       {markers.map((item) => (
-        <MarkerComponent {...item} />
+        <MarkerComponent
+          favoriteId={favoriteId}
+          item={item}
+          refreshFav={refreshFav}
+        />
       ))}
     </Map>
   );

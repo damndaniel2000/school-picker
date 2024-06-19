@@ -63,11 +63,15 @@ export const deleteUser = () => {
 };
 
 export const getUserFavorite = () => {
-  return api.get("/users/me/favorite");
+  return api.get("/users/me/favourite");
 };
 
-export const saveFavorite = (facility_id: string) => {
-  return api.post("/users/me/favorite", { facility_id });
+export const saveUserFavorite = (facility_id: string) => {
+  return api.post("/users/me/favorite?&facility_id=" + facility_id, {});
+};
+
+export const updateUserFavorite = (facility_id: string) => {
+  return api.patch("/users/me/favourite?&facility_id=" + facility_id, {});
 };
 
 export const updateUserDetails = (payload: EditDetails) => {
