@@ -24,7 +24,8 @@ const Login = () => {
       navigate("/home");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
-      toast.error(e?.response?.data?.detail);
+      if (e.response.data.detail) toast.error(e?.response?.data?.detail);
+      else toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }

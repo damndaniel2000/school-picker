@@ -28,13 +28,13 @@ const PlaceAutocompleteClassic = ({ value, onPlaceSelect }: Props) => {
 
     placeAutocomplete.addListener("place_changed", () => {
       onPlaceSelect(placeAutocomplete.getPlace());
-      console.log("HEHHE", placeAutocomplete.getPlace());
     });
   }, [onPlaceSelect, placeAutocomplete]);
 
   return (
     <div className="autocomplete-container">
       <TextField.Root
+        size="3"
         defaultValue={value}
         ref={inputRef}
       />

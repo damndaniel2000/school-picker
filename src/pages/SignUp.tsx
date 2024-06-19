@@ -5,13 +5,14 @@ import { Link } from "react-router-dom";
 import * as Form from "@radix-ui/react-form";
 import { signup } from "../utils/api";
 import { toast } from "react-toastify";
+import PlaceAutocompleteClassic from "../components/Autocomplete";
 
-// Define the types for the errors state
 interface Errors {
   firstName: string;
   lastName: string;
   username: string;
   password: string;
+  address: string;
   repeatPassword: string;
 }
 
@@ -21,10 +22,12 @@ const SignUp: React.FC = () => {
     firstName: "",
     lastName: "",
     username: "",
+    address: "",
     password: "",
     repeatPassword: "",
   });
   const [loading, setLoading] = useState(false);
+  const [fullAddress, setAddress] = useState("");
 
   const validateEmail = (email: string): boolean => {
     const re = /\S+@\S+\.\S+/;
@@ -70,7 +73,10 @@ const SignUp: React.FC = () => {
     const firstName = formData.get("firstName") as string;
     const lastName = formData.get("lastName") as string;
     const username = formData.get("username") as string;
+    const address = fullAddress;
     const password = formData.get("password") as string;
+    const houseNumber = formData.get("house_number") as string;
+    const postalCode = formData.get("postalCode") as string;
     const repeatPassword = formData.get("repeatPassword") as string;
 
     let valid = true;
@@ -79,6 +85,7 @@ const SignUp: React.FC = () => {
       lastName: "",
       username: "",
       password: "",
+      address: "",
       repeatPassword: "",
     };
 
@@ -89,6 +96,11 @@ const SignUp: React.FC = () => {
 
     if (!lastName) {
       errors.lastName = "Last name is required";
+      valid = false;
+    }
+
+    if (address.length < 1) {
+      errors.address = "Address has to be valid";
       valid = false;
     }
 
@@ -116,7 +128,11 @@ const SignUp: React.FC = () => {
           username,
           email: username,
           full_name: `${firstName} ${lastName}`,
+          address,
           password,
+          house_number: houseNumber,
+          plz: postalCode,
+          ort: "",
         };
 
         const payload = await signup(data);
@@ -128,7 +144,8 @@ const SignUp: React.FC = () => {
         navigate("/home");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
-        toast.error(e?.response?.data?.detail);
+        if (e.response.data.detail) toast.error(e?.response?.data?.detail);
+        else toast.error("Something went wrong");
       } finally {
         setLoading(false);
       }
@@ -149,7 +166,7 @@ const SignUp: React.FC = () => {
     <div className="w-[400px] flex items-center relative justify-center flex-col h-screen mx-auto p-6 text-center">
       <h2 className="text-2xl font-semibold mb-6">Create An Account</h2>
       <Form.Root
-        className="space-y-8 w-full"
+        className="space-y-3 w-full"
         onSubmit={onSubmit}
       >
         <div className="space-y-3">
@@ -189,6 +206,37 @@ const SignUp: React.FC = () => {
             </Form.Control>
             <ErrorText error={errors.username} />
           </Form.Field>
+          <Form.Field name="address">
+            <Form.Control asChild>
+              <PlaceAutocompleteClassic
+                value=""
+                onPlaceSelect={(e) => {
+                  setAddress(e?.name || "");
+                }}
+              />
+            </Form.Control>
+            <ErrorText error={errors.address} />
+          </Form.Field>
+          <div className="flex space-x-3 pb-4">
+            <Form.Field name="house_number">
+              <Form.Control asChild>
+                <TextField.Root
+                  size="3"
+                  placeholder="House Number"
+                  name="house_number"
+                ></TextField.Root>
+              </Form.Control>
+            </Form.Field>
+            <Form.Field name="postalCode">
+              <Form.Control asChild>
+                <TextField.Root
+                  size="3"
+                  placeholder="Postal Code"
+                  name="postalCode"
+                ></TextField.Root>
+              </Form.Control>
+            </Form.Field>
+          </div>
           <Form.Field name="password">
             <Form.Control asChild>
               <TextField.Root

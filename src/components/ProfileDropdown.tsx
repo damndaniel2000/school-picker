@@ -1,5 +1,6 @@
 import { Avatar, Popover } from "@radix-ui/themes";
 import { useNavigate } from "react-router-dom";
+import userIcon from "../assets/user.svg";
 
 const ProfileDropdown = ({
   openProfileSection = () => {},
@@ -17,9 +18,11 @@ const ProfileDropdown = ({
       <Popover.Trigger>
         <div className="cursor-pointer">
           <Avatar
+            className="bg-red"
+            src={userIcon}
             fallback="A"
             variant="solid"
-            size="2"
+            size="1"
             radius="full"
             highContrast
           />
