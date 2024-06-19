@@ -6,13 +6,19 @@ import DeleteConfirmAlert from "./DeleteConfirmAlert";
 import { UserDetails } from "../utils/types";
 import { toast } from "react-toastify";
 import PlaceAutocompleteClassic from "./Autocomplete";
+import { getLatLng } from "../utils/common";
 
 interface SideDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  getHomeAddressBounds: (bounds: { lat: number; lng: number }) => void;
 }
 
-const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
+const SideDrawer: React.FC<SideDrawerProps> = ({
+  isOpen,
+  onClose,
+  getHomeAddressBounds,
+}) => {
   const [userDetails, setUserDetails] = useState<UserDetails>();
   const [editedDetails, setEditedDetails] = useState<UserDetails>();
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -27,6 +33,11 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
       const res = await getUserDetails();
       setUserDetails(res.data);
       setEditedDetails(res.data);
+      getLatLng(res.data.address)
+        .then((res) => {
+          if (res) getHomeAddressBounds(res);
+        })
+        .catch((err) => console.log(err));
     } catch (e) {
       console.log(e);
     }
@@ -58,6 +69,12 @@ const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose }) => {
         address: editedDetails.address,
         full_name: editedDetails.full_name,
       });
+      if (editedDetails.address)
+        getLatLng(editedDetails?.address)
+          .then((res) => {
+            if (res) getHomeAddressBounds(res);
+          })
+          .catch((err) => console.log(err));
       setIsUpdateUsersOpen(false);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {

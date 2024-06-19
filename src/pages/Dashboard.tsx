@@ -9,7 +9,7 @@ import {
   getSocialTeenageProjectFacilities,
   getUserFavorite,
 } from "../utils/api";
-import { Institute } from "../utils/types";
+import { Bounds, Institute } from "../utils/types";
 import ProfileDropdown from "../components/ProfileDropdown";
 import logo from "../assets/logo.png";
 import SideDrawer from "../components/SideDrawer";
@@ -68,6 +68,7 @@ export default function Dashboard() {
   const [isCategoriesDisabled, setIsCategoriesDisabled] = useState(true);
   const [favoriteFacility, setFavoriteFacility] = useState<Institute>();
   const [refreshFav, setRefreshFav] = useState("");
+  const [homeBounds, setHomeBounds] = useState<Bounds>(null);
 
   const navigate = useNavigate();
 
@@ -205,6 +206,7 @@ export default function Dashboard() {
         <SideDrawer
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
+          getHomeAddressBounds={(res) => setHomeBounds(res)}
         />
 
         {isLoading ? ( // Conditional rendering based on loading state
@@ -218,6 +220,7 @@ export default function Dashboard() {
                 favoriteId={favoriteFacility?.id}
                 markers={filteredMarkers}
                 refreshFav={(e) => setRefreshFav(e)}
+                homeBounds={homeBounds}
               />
             )}
           </div>

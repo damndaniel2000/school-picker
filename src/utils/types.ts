@@ -44,3 +44,8 @@ export type UserDetails = {
   plz?: string;
   ort?: string;
 };
+
+export type Bounds = {
+  lat: number;
+  lng: number;
+} | null;

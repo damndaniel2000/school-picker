@@ -5,7 +5,7 @@ import {
   InfoWindow,
   useAdvancedMarkerRef,
 } from "@vis.gl/react-google-maps";
-import { Institute } from "../utils/types";
+import { Bounds, Institute } from "../utils/types";
 import kgMarker from "../assets/kgMarker.png";
 import schoolMarker from "../assets/schoolMarker.png";
 import collegeProjectMarker from "../assets/collegeProjectMarker.png";
@@ -15,11 +15,13 @@ import { Button } from "@radix-ui/themes";
 import { saveUserFavorite, updateUserFavorite } from "../utils/api";
 import { toast } from "react-toastify";
 import mapStyle from "../utils/mapStyle";
+import { calculateDistance } from "../utils/common";
 
 type MapProps = {
   favoriteId?: string | null;
   markers: Institute[];
   refreshFav: (id: string) => void;
+  homeBounds: Bounds;
 };
 
 // Define a color map for categories
@@ -34,11 +36,13 @@ type MarkerComponentProps = {
   item: Institute;
   favoriteId?: string | null;
   refreshFav: (id: string) => void;
+  homeBounds: Bounds;
 };
 
 const MarkerComponent = (props: MarkerComponentProps) => {
   const [infowindowOpen, setInfowindowOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [distance, setDistance] = useState<string | null>(null);
   const [markerRef, marker] = useAdvancedMarkerRef();
   const infowindowRef = useRef<HTMLDivElement>(null);
 
@@ -86,7 +90,20 @@ const MarkerComponent = (props: MarkerComponentProps) => {
     <>
       <AdvancedMarker
         ref={markerRef}
-        onClick={() => setInfowindowOpen(true)}
+        onClick={() => {
+          setInfowindowOpen(true);
+          if (props.homeBounds)
+            calculateDistance(
+              props.homeBounds?.lat,
+              props.homeBounds?.lng,
+              item.Y,
+              item.X
+            )
+              .then((res) => {
+                setDistance(res);
+              })
+              .catch((err) => console.log(err));
+        }}
         position={{ lat: item.Y, lng: item.X }}
       >
         <img
@@ -102,7 +119,7 @@ const MarkerComponent = (props: MarkerComponentProps) => {
           >
             <div
               ref={infowindowRef}
-              className="w-full"
+              className="w-full relative"
             >
               <h2 className="text-lg font-semibold">{item.BEZEICHNUNG}</h2>
               <p className="text-sm text-gray-600">{item.ORT}</p>
@@ -116,9 +133,12 @@ const MarkerComponent = (props: MarkerComponentProps) => {
               {item.HAUSBEZ && <p>House Number: {item.HAUSBEZ}</p>}
               {item.BARRIEREFREI && <p>Barrier-Free: {item.BARRIEREFREI}</p>}
               {item.INTEGRATIV && <p>Integrative: {item.INTEGRATIV}</p>}
+              {distance && (
+                <p className="font-bold mt-2">{distance} from home</p>
+              )}
 
               {props.favoriteId !== item.id && (
-                <div className="mt-4">
+                <div className="mt-2">
                   <Button
                     loading={loading}
                     className="cursor-pointer"
@@ -141,6 +161,7 @@ const MapComponent: React.FC<MapProps> = ({
   markers,
   favoriteId,
   refreshFav,
+  homeBounds,
 }) => {
   return (
     <Map
@@ -157,6 +178,7 @@ const MapComponent: React.FC<MapProps> = ({
           favoriteId={favoriteId}
           item={item}
           refreshFav={refreshFav}
+          homeBounds={homeBounds}
         />
       ))}
     </Map>
